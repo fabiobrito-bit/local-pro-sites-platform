@@ -1,0 +1,8 @@
+CREATE TABLE invites (
+  id SERIAL PRIMARY KEY,
+  tenant_id INTEGER NOT NULL REFERENCES tenants(id),
+  email VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL,
+  token VARCHAR(64) NOT NULL UNIQUE,
+  expires_at TIMESTAMP NOT NULL
+);
