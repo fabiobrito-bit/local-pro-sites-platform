@@ -8,6 +8,7 @@ export interface AuthRequest extends Request {
   user?: JWTPayload;
 }
 
+export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
     if (!token) {
@@ -34,11 +35,8 @@ export interface AuthRequest extends Request {
     return res.status(401).json({ error: 'Ongeldige token' });
   }
 }
-// ...existing code...
 
 export const requireAuth = authenticate;
-
-}
 
 export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction) {
   if (!req.user || req.user.role !== 'admin') {
