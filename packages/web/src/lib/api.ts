@@ -1,3 +1,14 @@
+
+interface ViteEnv {
+  VITE_API_URL: string;
+}
+
+declare global {
+  interface ImportMeta {
+    env: ViteEnv;
+  }
+}
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 class ApiClient {
@@ -13,9 +24,9 @@ class ApiClient {
   ): Promise<T> {
     const token = localStorage.getItem('token');
 
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...options.headers as Record<string, string>,
     };
 
     if (token) {
@@ -33,15 +44,12 @@ class ApiClient {
       throw new Error(error.error || 'Request failed');
     }
 
-    return response.json();
+  return response.json() as Promise<T>;
   }
 
   // Auth
   async login(email: string, password: string, totpToken?: string) {
-    return this.request<{ user: any; token: string; requiresTwoFa?: boolean }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, totpToken }),
-    });
+    return this.post<{ user: { id: string; email: string; role: string }; token: string; requiresTwoFa?: boolean }>('/auth/login', { email, password, totpToken });
   }
 
   async register(data: {
@@ -51,68 +59,58 @@ class ApiClient {
     lastName: string;
     businessName?: string;
   }) {
-    return this.request<{ user: any }>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    return this.post<{ user: { id: string; email: string; role: string } }>('/auth/register', data);
   }
 
   async logout() {
-    return this.request<{ message: string }>('/auth/logout', {
-      method: 'POST',
-    });
+    return this.post<{ message: string }>('/auth/logout', {});
   }
 
   async getMe() {
-    return this.request<{ user: any }>('/auth/me');
+    return this.get<{ user: { id: string; email: string; role: string } }>('/auth/me');
   }
 
   async setup2FA() {
-    return this.request<{ secret: string; qrCode: string; backupCodes: string[] }>('/auth/2fa/setup', {
-      method: 'POST',
-    });
+    return this.post<{ secret: string; qrCode: string; backupCodes: string[] }>('/auth/2fa/setup', {});
   }
 
   async enable2FA(token: string) {
-    return this.request<{ success: boolean }>('/auth/2fa/enable', {
-      method: 'POST',
-      body: JSON.stringify({ token }),
-    });
+    return this.post<{ success: boolean }>('/auth/2fa/enable', { token });
   }
 
   async disable2FA() {
-    return this.request<{ success: boolean }>('/auth/2fa/disable', {
-      method: 'POST',
-    });
+    return this.post<{ success: boolean }>('/auth/2fa/disable', {});
   }
 
   // Chat
   async createChatSession(websiteId?: string) {
-    return this.request<any>('/chat/sessions', {
-      method: 'POST',
-      body: JSON.stringify({ websiteId }),
-    });
+    return this.post<{ sessionId: string }>('/chat/sessions', { websiteId });
   }
 
   async sendMessage(sessionId: string, message: string, websiteId?: string) {
-    return this.request<any>('/chat/messages', {
-      method: 'POST',
-      body: JSON.stringify({ sessionId, message, websiteId }),
-    });
+    return this.post<{ messageId: string }>('/chat/messages', { sessionId, message, websiteId });
   }
 
   async getChatSessions() {
-    return this.request<any[]>('/chat/sessions');
+    return this.get<{ id: string; title: string }[]>('/chat/sessions');
   }
 
   async getChatMessages(sessionId: string) {
-    return this.request<any[]>(`/chat/sessions/${sessionId}/messages`);
+    return this.get<{ id: string; content: string }[]>(`/chat/sessions/${sessionId}/messages`);
   }
 
   async escalateToSupport(sessionId: string, reason: string) {
-    return this.request<{ success: boolean }>(`/chat/sessions/${sessionId}/escalate`, {
+    return this.post<{ success: boolean }>(`/chat/sessions/${sessionId}/escalate`, { reason });
+  }
+
+  async get<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET' });
+  }
+
+  async post<T>(endpoint: string, body: Record<string, unknown>): Promise<T> {
+    return this.request<T>(endpoint, {
       method: 'POST',
-      body: JSON.stringify({ reason }),
+      body: JSON.stringify(body),
     });
   }
 }

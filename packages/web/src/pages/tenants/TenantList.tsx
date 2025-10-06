@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
 
 export default function TenantList() {
   const [tenants, setTenants] = useState([]);
 
   useEffect(() => {
-    api.get('/tenants').then(res => setTenants(res.data));
+    api.get('/tenants').then((res: any) => (res as Response).json()).then(data => setTenants(data));
   }, []);
 
   return (
