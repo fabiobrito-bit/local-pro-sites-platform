@@ -1,0 +1,15 @@
+total 428
+drwxrwxrwx+   6 node root   4096 Oct  5 20:28 .
+drwxr-xrwx+   4 node root   4096 Oct  5 18:45 ..
+drwxrwxrwx+   2 node root   4096 Oct  5 18:45 .devcontainer
+-rw-rw-rw-    1 node node    481 Oct  5 20:12 dev-output.log
+-rw-rw-rw-    1 node node      0 Oct  5 20:28 directory_listing.txt
+-rw-rw-rw-    1 node node    775 Oct  5 19:18 .env
+-rw-rw-rw-    1 node root    415 Oct  5 18:45 .env.example
+drwxrwxrwx+   7 node root   4096 Oct  5 19:08 .git
+-rw-rw-rw-    1 node root    464 Oct  5 18:45 .gitignore
+drwxrwxrwx+ 419 node node  20480 Oct  5 19:00 node_modules
+-rw-rw-rw-    1 node root    692 Oct  5 18:45 package.json
+-rw-rw-rw-    1 node node 365982 Oct  5 19:00 package-lock.json
+drwxrwxrwx+   4 node root   4096 Oct  5 18:45 packages
+-rw-rw-rw-    1 node root   7560 Oct  5 18:45 README.md
