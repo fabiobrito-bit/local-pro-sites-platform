@@ -1,21 +1,26 @@
 import { db } from '../models/db';
+import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
+import { invites } from '../models/schema';
 
 export async function createInvite(userId: string, tenantId: string, email: string, role: string) {
   const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-  // Replace with actual DB insert
-  return db.query(
-    'INSERT INTO invites (tenant_id, email, role, token, expires_at) VALUES (?, ?, ?, ?, ?) RETURNING *',
-    [tenantId, email, role, token, expiresAt]
-  );
+  // Insert invite using drizzle ORM
+  return db.insert(invites).values({
+    tenantId,
+    email,
+    role,
+    token,
+    expiresAt,
+  }).returning();
 }
 
 export async function acceptInvite(token: string) {
-  // Replace with actual DB update
-  const invite = await db.query('SELECT * FROM invites WHERE token = ? AND expires_at > NOW()', [token]);
-  if (!invite) return null;
-  // Add user to tenant, then delete invite
-  await db.query('DELETE FROM invites WHERE token = ?', [token]);
+  // Find invite using drizzle ORM
+  const invite = await db.select().from(invites).where(eq(invites.token, token)).execute();
+  if (!invite.length) return null;
+  // Add user to tenant, then delete invite (pseudo)
+  await db.delete(invites).where(eq(invites.token, token));
   return true;
 }

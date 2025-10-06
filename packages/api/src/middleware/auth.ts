@@ -8,32 +8,36 @@ export interface AuthRequest extends Request {
   user?: JWTPayload;
 }
 
-export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
-
     if (!token) {
       return res.status(401).json({ error: 'Niet geautoriseerd' });
     }
-
     const payload = verifyToken(token);
-
     // Verify session exists and is not expired
     const [session] = await db
       .select()
       .from(sessions)
       .where(eq(sessions.sessionToken, token))
       .limit(1);
-
     if (!session || session.expiresAt < new Date()) {
       return res.status(401).json({ error: 'Sessie verlopen' });
     }
-
-    req.user = payload;
+    req.user = {
+      userId: payload.userId,
+      email: payload.email,
+      role: payload.role,
+      adminRole: payload.adminRole,
+    };
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Ongeldige token' });
   }
+}
+// ...existing code...
+
+export const requireAuth = authenticate;
+
 }
 
 export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction) {

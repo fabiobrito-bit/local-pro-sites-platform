@@ -1,5 +1,6 @@
 import express from 'express';
 import { getUserTenants, createTenant } from '../services/tenant.service';
+import { eq } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
 
 const router = express.Router();
@@ -7,7 +8,8 @@ const router = express.Router();
 // GET /api/tenants - List all tenants for the authenticated user
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+  if (!req.user?.id) return res.status(401).json({ error: 'Unauthorized' });
+  const userId = req.user.id;
     const tenants = await getUserTenants(userId);
     res.json(tenants);
   } catch (err) {
@@ -18,7 +20,8 @@ router.get('/', requireAuth, async (req, res) => {
 // POST /api/tenants - Create a new tenant
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+  if (!req.user?.id) return res.status(401).json({ error: 'Unauthorized' });
+  const userId = req.user.id;
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: 'Name required' });
     const tenant = await createTenant(userId, name);
