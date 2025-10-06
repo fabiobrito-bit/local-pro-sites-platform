@@ -2,14 +2,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import LoginPage from './pages/LoginPage'
 import ClientLayout from './pages/client/ClientLayout'
-import ClientDashboard from './pages/client/ClientDashboard'
+import ClientDashboard from './pages/ClientDashboard'
 import ClientContent from './pages/client/ClientContent'
 import ClientChat from './pages/client/ClientChat'
 import ClientAnalytics from './pages/client/ClientAnalytics'
 import ClientFiles from './pages/client/ClientFiles'
 import ClientProfile from './pages/client/ClientProfile'
 import AdminLayout from './pages/admin/AdminLayout'
-import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminDashboard from './pages/AdminDashboard'
 import AdminClients from './pages/admin/AdminClients'
 import AdminRequests from './pages/admin/AdminRequests'
 import AdminWebsites from './pages/admin/AdminWebsites'
@@ -33,31 +33,15 @@ function App() {
       <Routes>
         <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
 
-        {/* Client Portal */}
+        {/* Dashboard routes */}
         <Route
-          path="/client"
-          element={user?.role === 'client' ? <ClientLayout /> : <Navigate to="/login" />}
-        >
-          <Route index element={<ClientDashboard />} />
-          <Route path="content" element={<ClientContent />} />
-          <Route path="chat" element={<ClientChat />} />
-          <Route path="analytics" element={<ClientAnalytics />} />
-          <Route path="files" element={<ClientFiles />} />
-          <Route path="profile" element={<ClientProfile />} />
-        </Route>
-
-        {/* Admin Portal */}
+          path="/dashboard"
+          element={user?.role === 'client' ? <ClientDashboard /> : <Navigate to="/login" />}
+        />
         <Route
           path="/admin"
-          element={user?.role === 'admin' ? <AdminLayout /> : <Navigate to="/login" />}
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="clients" element={<AdminClients />} />
-          <Route path="requests" element={<AdminRequests />} />
-          <Route path="websites" element={<AdminWebsites />} />
-          <Route path="support" element={<AdminSupport />} />
-          <Route path="analytics" element={<AdminAnalytics />} />
-          <Route path="settings" element={<AdminSettings />} />
+          element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />}
+        />
         </Route>
 
         {/* Default redirect */}
