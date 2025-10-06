@@ -4,8 +4,17 @@ import { db } from '../models/db';
 import { users } from '../models/schema';
 import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
+import { blacklistToken } from '../utils/jwtBlacklist';
 
 const router = Router();
+
+// POST /auth/logout
+router.post('/logout', (req, res) => {
+  const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(400).json({ success: false, message: 'No token provided' });
+  blacklistToken(token);
+  res.json({ success: true, message: 'Logged out' });
+});
 
 // POST /auth/send-verification
 router.post('/send-verification', async (req, res) => {

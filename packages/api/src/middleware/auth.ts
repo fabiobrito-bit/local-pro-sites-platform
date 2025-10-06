@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken, JWTPayload } from '../utils/jwt.js';
+import { isTokenBlacklisted } from '../utils/jwtBlacklist';
 import { db } from '../models/db.js';
 import { sessions } from '../models/schema.js';
 import { eq } from 'drizzle-orm';
@@ -13,6 +14,9 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
     const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
     if (!token) {
       return res.status(401).json({ error: 'Niet geautoriseerd' });
+    }
+    if (isTokenBlacklisted(token)) {
+      return res.status(401).json({ error: 'Token is ingetrokken (uitgelogd)' });
     }
     const payload = verifyToken(token);
     // Verify session exists and is not expired

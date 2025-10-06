@@ -7,7 +7,7 @@ import http from 'http';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import chatRoutes from './routes/chat.routes.js';
-import { generalLimiter } from './middleware/rateLimit.js';
+import { generalLimiter, authLimiter, apiLimiter } from './middleware/rateLimit.js';
 
 dotenv.config();
 
@@ -29,6 +29,8 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(generalLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/api', apiLimiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
